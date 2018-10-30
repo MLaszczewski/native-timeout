@@ -1,7 +1,7 @@
 let lastTimeoutId = 0
 let nextTimeouts = []
 
-function setTimeout(func, delay, ...params) {
+function setNativeTimeout(func, delay, ...params) {
   const time = Date.now() + delay
   let id = ++lastTimeoutId
   let timeoutObject = { func: () => func(...params), time, id }
@@ -22,7 +22,7 @@ function setTimeout(func, delay, ...params) {
   return id;
 }
 
-function clearTimeout(id) {
+function clearNativeTimeout(id) {
   for(let i = 0; i < nextTimeouts.length; i++) {
     if(nextTimeouts[i].id == id) { // erase element from array
       nextTimeouts = nextTimeouts
@@ -36,7 +36,7 @@ function clearTimeout(id) {
 let lastIntervalId = 0
 let intervals = new Set()
 
-function setInterval(func, delay, ...params) {
+function setNativeInterval(func, delay, ...params) {
   let id = ++lastIntervalId
   intervals.add(id)
   const intervalFunc = () => {
@@ -48,13 +48,13 @@ function setInterval(func, delay, ...params) {
     } catch(e) {
       console.error(e)
     }
-    setTimeout(intervalFunc, delay)
+    setNativeTimeout(intervalFunc, delay)
   }
-  setTimeout(intervalFunc, delay)
+  setNativeTimeout(intervalFunc, delay)
   return id
 }
 
-function clearInterval(id) {
+function clearNativeInterval(id) {
   intervals.delete(id)
 }
 
@@ -63,13 +63,18 @@ function nextTick() {
   let i;
   for(i = 0; i < nextTimeouts.length; i++) {
     if(nextTimeouts[i].time > now) break;
+  }
+  const timeoutsNow = nextTimeouts.slice(0, i)
+  nextTimeouts = nextTimeouts.slice(i) // remove timeouts
+
+  /// run timeout functions
+  for(let timeout of timeoutsNow) {
     try {
-      nextTimeouts[i].func() /// TODO: global object as this?
+      timeout.func() /// TODO: global object as this?
     } catch(e) {
       console.error(e)
     }
   }
-  nextTimeouts = nextTimeouts.slice(i) // remove timeouts
 }
 
-export { setTimeout, clearTimeout, setInterval, clearInterval, nextTick }
+export { setNativeTimeout, clearNativeTimeout, setNativeInterval, clearNativeInterval, nextTick }

@@ -1,9 +1,9 @@
 import {
   nextTick,
-  setTimeout as setNativeTimeout,
-  clearTimeout as clearNativeTimeout,
-  setInterval as setNativeInterval,
-  clearInterval as clearNativeInterval
+  setNativeTimeout as setNativeTimeout,
+  clearNativeTimeout as clearNativeTimeout,
+  setNativeInterval as setNativeInterval,
+  clearNativeInterval as clearNativeInterval
 } from "./native-timeout.js";
 
 setInterval(() => {
